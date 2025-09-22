@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using ProductMicroservice.Models;
+using ProductMicroservice.Repository;
+using System.Transactions;
 
 namespace ProductMicroservice.Controllers
 {
@@ -9,36 +9,56 @@ namespace ProductMicroservice.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        // GET: api/<ProductController>
+
+        private readonly IProductRepository _productRepository;
+
+        public ProductController(IProductRepository productRepository) => _productRepository = productRepository;
+
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IActionResult Get()
         {
-            return new string[] { "value1", "value2" };
+            var products = _productRepository.GetProducts();
+            return new OkObjectResult(products);
         }
 
-        // GET api/<ProductController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("{id}", Name = "Get")]
+        public IActionResult Get(int id)
         {
-            return "value";
+            var product = _productRepository.GetProductByID(id);
+            return new OkObjectResult(product);
         }
 
-        // POST api/<ProductController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public IActionResult Post([FromBody] Product product)
         {
+            using (var scope = new TransactionScope())
+            {
+                _productRepository.InsertProduct(product);
+                scope.Complete();
+                return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
+            }
         }
 
-        // PUT api/<ProductController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut]
+        public IActionResult Put([FromBody] Product product)
         {
+            if (product != null)
+            {
+                using (var scope = new TransactionScope())
+                {
+                    _productRepository.UpdateProduct(product);
+                    scope.Complete();
+                    return new OkResult();
+                }
+            }
+            return new NoContentResult();
         }
 
-        // DELETE api/<ProductController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
+            _productRepository.DeleteProduct(id);
+            return new OkResult();
         }
     }
 }
