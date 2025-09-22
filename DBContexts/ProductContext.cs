@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProductMicroservice.Model;
+using ProductMicroservice.Models;
 
 namespace ProductMicroservice.DBContexts
 {

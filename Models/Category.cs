@@ -1,4 +1,4 @@
-﻿namespace ProductMicroservice.Model
+﻿namespace ProductMicroservice.Models
 {
     public class Category
     {
