@@ -6,7 +6,7 @@ namespace ProductMicroservice.Repository
     interface IProductRepository
     {
         IEnumerable<Product> GetProducts();
-        Product GetProductById(int productId);
+        Product GetProductByID(int productId);
         void InsertProduct(Product product);
         void UpdateProduct(Product product);
         void DeleteProduct(int productId);
